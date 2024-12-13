@@ -1,0 +1,508 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="24" zv="Cache for Windows (x86-32) 2010.2.2 (Build 600U)" ts="2011-03-11 14:14:06">
+<Class name="Sample.Address2">
+<Super>%SerialObject,%Populate,%XML.Adaptor</Super>
+<TimeChanged>62161,46126.734545</TimeChanged>
+<TimeCreated>59837,42748.056449</TimeCreated>
+
+<Property name="Zip">
+<Type>%String</Type>
+</Property>
+
+<Property name="Pref">
+<Type>%String</Type>
+</Property>
+
+<Property name="City">
+<Type>%String</Type>
+</Property>
+
+<Property name="Street">
+<Type>%String</Type>
+</Property>
+
+<Method name="OnPopulate">
+<ReturnType>%Status</ReturnType>
+<Implementation><![CDATA[
+	Set id=$R($Get(^Yubin.ZenkokuD)+1)
+	Set yubindata=^Yubin.ZenkokuD(id)
+	Set ..Zip=$List(yubindata,4)
+	Set ..Pref=$List(yubindata,8)
+	Set ..City=$List(yubindata,9)
+	Set ..Street=$List(yubindata,10)
+	QUIT $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheSerialState</Type>
+<State>Address2State</State>
+<StreamLocation>^Sample.Address2S</StreamLocation>
+<Data name="Address2State">
+<Structure>listnode</Structure>
+<Subscript>"Sample.Address2"</Subscript>
+<Value name="1">
+<Value>City</Value>
+</Value>
+<Value name="2">
+<Value>Pref</Value>
+</Value>
+<Value name="3">
+<Value>Street</Value>
+</Value>
+<Value name="4">
+<Value>Zip</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.Customer">
+<Super>%Persistent,%Populate,%XML.Adaptor</Super>
+<TimeChanged>62161,46126.958327</TimeChanged>
+<TimeCreated>59837,42748.140935</TimeCreated>
+
+<Index name="NameIndex">
+<Properties>Name</Properties>
+</Index>
+
+<Index name="TelnoIndex">
+<Properties>Telno</Properties>
+</Index>
+
+<Projection name="JavaProjection1">
+<Type>%Projection.Java</Type>
+</Projection>
+
+<Query name="ByName">
+<Type>%SQLQuery</Type>
+<FormalSpec>Name:%String</FormalSpec>
+<SqlQuery>SELECT %ID,Name,Telno FROM Customer
+ WHERE (Name %STARTSWITH :Name)</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Query name="ByTelno">
+<Type>%SQLQuery</Type>
+<FormalSpec>Telno:%String</FormalSpec>
+<SqlQuery>SELECT %ID,Name,Telno FROM Customer
+ WHERE (Telno %STARTSWITH :Telno)</SqlQuery>
+<Parameter name="CONTAINID" value="1"/>
+</Query>
+
+<Property name="Address1">
+<Type>Address2</Type>
+</Property>
+
+<Property name="Name">
+<Type>%String</Type>
+<Parameter name="POPSPEC" value="##Class(Sample.PopulateUtils).Company()"/>
+</Property>
+
+<Property name="Telno">
+<Type>%String</Type>
+<Parameter name="POPSPEC" value="##Class(Sample.PopulateUtils).JPNPhone()"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Sample.CustomerD</DataLocation>
+<DefaultData>CustomerDefaultData</DefaultData>
+<IdLocation>^Sample.CustomerD</IdLocation>
+<IndexLocation>^Sample.CustomerI</IndexLocation>
+<StreamLocation>^Sample.CustomerS</StreamLocation>
+<Data name="CustomerDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Address1</Value>
+</Value>
+<Value name="3">
+<Value>Name</Value>
+</Value>
+<Value name="4">
+<Value>Telno</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.Order">
+<SqlTableName>注文</SqlTableName>
+<Super>%Persistent</Super>
+<TimeChanged>62161,46754.162034</TimeChanged>
+<TimeCreated>59837,42748.154809</TimeCreated>
+
+<Property name="Customer1">
+<Type>Customer</Type>
+</Property>
+
+<Property name="OrderDate">
+<Type>%Date</Type>
+</Property>
+
+<Property name="Items">
+<Type>Sample.OrderItem</Type>
+<Cardinality>children</Cardinality>
+<Inverse>TheOrder</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Total">
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode> Set {Total}=##class(Sample.Order).CalcTotal({ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Index name="CustomerIndex1">
+<Properties>Customer1</Properties>
+</Index>
+
+<Method name="CalcTotal">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%Integer</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	Set total = 0
+	set statement=##class(%SQL.Statement).%New()
+	set st=statement.%Prepare("SELECT TheProductStock,Quantity FROM Sample.注文明細 WHERE TheOrder->ID = ?")
+	set rset=statement.%Execute(ID)
+	While (rset.%Next()) {
+		Set ps=rset.TheProductStock
+		Set qty=rset.Quantity
+		set statement2=##class(%SQL.Statement).%New()
+		set st2=statement2.%Prepare("SELECT TheProductSize,TheProductSize->price As price FROM Sample.ProductStock WHERE ID = ?")
+		set rset2=statement2.%Execute(ps)
+ 		Do rset2.%Next()
+ 		Set price=rset2.price
+ 		Set total = total + (price * qty)
+	}
+ 	Quit total
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Sample.OrderD</DataLocation>
+<DefaultData>OrderDefaultData</DefaultData>
+<IdLocation>^Sample.OrderD</IdLocation>
+<IndexLocation>^Sample.OrderI</IndexLocation>
+<StreamLocation>^Sample.OrderS</StreamLocation>
+<Data name="OrderDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Customer1</Value>
+</Value>
+<Value name="3">
+<Value>OrderDate</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.OrderItem">
+<SqlTableName>注文明細</SqlTableName>
+<Super>%Persistent</Super>
+<TimeChanged>62161,46127.180402</TimeChanged>
+<TimeCreated>59837,42748.16709</TimeCreated>
+
+<Property name="TheProductStock">
+<Type>Sample.ProductStock</Type>
+<Cardinality>one</Cardinality>
+<Inverse>OrderItems</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="TheProductStockIndex">
+<Properties>TheProductStock</Properties>
+</Index>
+
+<Property name="Quantity">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="TheOrder">
+<Type>Sample.Order</Type>
+<Cardinality>parent</Cardinality>
+<Inverse>Items</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>{%%PARENT}("Items")</DataLocation>
+<DefaultData>OrderItemDefaultData</DefaultData>
+<IdLocation>^Sample.OrderC("Items")</IdLocation>
+<IndexLocation>^Sample.OrderItemI</IndexLocation>
+<StreamLocation>^Sample.OrderItemS</StreamLocation>
+<Data name="OrderItemDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>NoOfUnit</Value>
+</Value>
+<Value name="3">
+<Value>ProductId</Value>
+</Value>
+<Value name="4">
+<Value>Color</Value>
+</Value>
+<Value name="5">
+<Value>PSize</Value>
+</Value>
+<Value name="6">
+<Value>Quantity</Value>
+</Value>
+<Value name="7">
+<Value>TheProductStock</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.Product">
+<Super>%Persistent,%Populate,%XML.Adaptor</Super>
+<TimeChanged>62161,46127.399491</TimeChanged>
+<TimeCreated>59837,42748.200911</TimeCreated>
+
+<Property name="ProductSizes">
+<Type>Sample.ProductSize</Type>
+<Cardinality>children</Cardinality>
+<Inverse>TheProduct</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="NameIndex1">
+<Properties>Name</Properties>
+</Index>
+
+<Projection name="JavaProjection1">
+<Type>%Projection.Java</Type>
+</Projection>
+
+<Property name="Name">
+<Type>%String</Type>
+</Property>
+
+<Property name="Supplier">
+<Type>Sample.Supplier</Type>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Sample.ProductD</DataLocation>
+<DefaultData>ProductDefaultData</DefaultData>
+<IdLocation>^Sample.ProductD</IdLocation>
+<IndexLocation>^Sample.ProductI</IndexLocation>
+<StreamLocation>^Sample.ProductS</StreamLocation>
+<Data name="ProductDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Name</Value>
+</Value>
+<Value name="3">
+<Value>Supplier</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.ProductSize">
+<Super>%Persistent,%Populate,%XML.Adaptor</Super>
+<TimeChanged>62161,46760.705881</TimeChanged>
+<TimeCreated>59837,42748.214902</TimeCreated>
+
+<Property name="Price">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="ProductStocks">
+<Type>Sample.ProductStock</Type>
+<Cardinality>children</Cardinality>
+<Inverse>TheProductSize</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="SSize">
+<Type>%String</Type>
+<Parameter name="POPSPEC" value="ValueList(&quot;,S,M,LL,LLL,XL&quot;):2"/>
+<Parameter name="VALUELIST" value=",S,M,L,LL,LLL,XL"/>
+</Property>
+
+<Property name="PID">
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode> Set {PID}=##class(Sample.ProductSize).GetPID({ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Property name="TheProduct">
+<Type>Sample.Product</Type>
+<Cardinality>parent</Cardinality>
+<Inverse>ProductSizes</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Index name="SizeIndex1">
+<Properties>SSize</Properties>
+</Index>
+
+<Method name="GetPID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+ 	set statement=##class(%SQL.Statement).%New()
+ 	set st=statement.%Prepare("SELECT TheProduct FROM Sample.ProductSize WHERE ID = ?")
+	set rset=statement.%Execute(ID)
+	While (rset.%Next()) {
+ 		Set pid=rset.TheProduct
+	}
+	Quit pid
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>{%%PARENT}("ProductSizes")</DataLocation>
+<DefaultData>ProductSizeDefaultData</DefaultData>
+<IdLocation>^Sample.ProductC("ProductSizes")</IdLocation>
+<IndexLocation>^Sample.ProductSizeI</IndexLocation>
+<StreamLocation>^Sample.ProductSizeS</StreamLocation>
+<Data name="ProductSizeDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>SSize</Value>
+</Value>
+<Value name="3">
+<Value>Price</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.ProductStock">
+<Super>%Persistent,%Populate,%XML.Adaptor</Super>
+<TimeChanged>62161,46798.410925</TimeChanged>
+<TimeCreated>59837,42748.233603</TimeCreated>
+
+<Property name="Color">
+<Type>%String</Type>
+<Parameter name="POPSPEC" value="ValueList(&quot;,赤,青,黄,黒,灰色,白,緑,水色,茶,ピンク,紫&quot;):2"/>
+</Property>
+
+<Property name="OrderItems">
+<Type>Sample.OrderItem</Type>
+<Cardinality>many</Cardinality>
+<Inverse>TheProductStock</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="TheProductSize">
+<Type>Sample.ProductSize</Type>
+<Cardinality>parent</Cardinality>
+<Inverse>ProductStocks</Inverse>
+<Relationship>1</Relationship>
+</Property>
+
+<Property name="Quantity">
+<Type>%Integer</Type>
+</Property>
+
+<Property name="SSize">
+<Type>%String</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode> Set {SSize}=##class(Sample.ProductStock).GetSSize({ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+<Parameter name="TRUNCATE" value="1"/>
+</Property>
+
+<Property name="PID">
+<Type>%Integer</Type>
+<Calculated>1</Calculated>
+<SqlComputeCode> Set {PID}=##class(Sample.ProductStock).GetPID({ID})</SqlComputeCode>
+<SqlComputed>1</SqlComputed>
+</Property>
+
+<Index name="ColorIndex1">
+<Properties>Color</Properties>
+</Index>
+
+<Method name="GetPID">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%Integer</ReturnType>
+<Implementation><![CDATA[
+	set statement=##class(%SQL.Statement).%New()
+	set st=statement.%Prepare("SELECT TheProductSize->TheProduct As PID FROM Sample.ProductStock WHERE ID = ?")
+	set rset=statement.%Execute(ID)
+	While (rset.%Next()) {
+ 		Set pid=rset.PID
+ 	}
+	Quit pid
+]]></Implementation>
+</Method>
+
+<Method name="GetSSize">
+<ClassMethod>1</ClassMethod>
+<FormalSpec>ID:%String</FormalSpec>
+<ReturnType>%String</ReturnType>
+<Implementation><![CDATA[
+	set statement=##class(%SQL.Statement).%New()
+	set st=statement.%Prepare("SELECT TheProductSize->SSize As SSize FROM Sample.ProductStock WHERE ID = ?")
+	set rset=statement.%Execute(ID)
+	While (rset.%Next()) {
+ 		Set size=rset.SSize
+	}
+	Quit size
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>{%%PARENT}("ProductStocks")</DataLocation>
+<DefaultData>ProductStockDefaultData</DefaultData>
+<IdLocation>^Sample.ProductSizeC("ProductStocks")</IdLocation>
+<IndexLocation>^Sample.ProductStockI</IndexLocation>
+<StreamLocation>^Sample.ProductStockS</StreamLocation>
+<Data name="ProductStockDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Color</Value>
+</Value>
+<Value name="3">
+<Value>Quantity</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+</Export>
