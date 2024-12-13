@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="24" zv="Cache for Windows (x86-32) 2010.2.2 (Build 600U)" ts="2011-03-11 12:25:44">
+<Class name="Sample.Accesary">
+<Super>%Persistent,%Populate,%XML.Adaptor</Super>
+<TimeChanged>62161,42881.304411</TimeChanged>
+<TimeCreated>62161,37533</TimeCreated>
+
+<Property name="Name">
+<Type>%String</Type>
+<Required>1</Required>
+<SqlFieldName>名前</SqlFieldName>
+<Parameter name="POPSPEC" value="##Class(Sample.PopulateUtils).String()"/>
+</Property>
+
+<Property name="Price">
+<Type>%Integer</Type>
+<SqlFieldName>価格</SqlFieldName>
+<Parameter name="MAXVAL" value="1000000"/>
+<Parameter name="MINVAL" value="0"/>
+</Property>
+
+<Property name="Madeof">
+<Type>%String</Type>
+<SqlFieldName>製造元</SqlFieldName>
+<Parameter name="POPSPEC" value="##Class(Sample.PopulateUtils).String()"/>
+</Property>
+
+<Method name="CreateAll">
+<Description>
+Sample.Accesary、Sample.Jewel、Sample.Watch　の自動生成</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>n:%String=10</FormalSpec>
+<Implementation><![CDATA[
+	for i=1:1:n*2 {
+		set flg=$random(2)
+		if flg=0 {
+			Do ##class(Sample.Jewel).Populate(1)
+		}
+		else {
+			do ##class(Sample.Watch).Populate(1)
+		}
+	}
+]]></Implementation>
+</Method>
+
+<Method name="DestroyAll">
+<Description>
+Sample.Accesary、Sample.Jewel、Sample.Watch　の一括削除</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[	do ##class(Sample.Accesary).%KillExtent()
+]]></Implementation>
+</Method>
+
+<Method name="OnPopulate">
+<ReturnType>%Status</ReturnType>
+<ServerOnly>1</ServerOnly>
+<Implementation><![CDATA[
+	if ..%ClassName(1)="Sample.Jewel" {
+		set ..Name=##class(Sample.PopulateUtils).AccesaryName(0)
+	}
+	else {
+		set ..Name=##class(Sample.PopulateUtils).AccesaryName(1)
+	}
+	quit $$$OK
+]]></Implementation>
+</Method>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^Sample.AccesaryD</DataLocation>
+<DefaultData>AccesaryDefaultData</DefaultData>
+<IdLocation>^Sample.AccesaryD</IdLocation>
+<IndexLocation>^Sample.AccesaryI</IndexLocation>
+<StreamLocation>^Sample.AccesaryS</StreamLocation>
+<Data name="AccesaryDefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Name</Value>
+</Value>
+<Value name="3">
+<Value>Price</Value>
+</Value>
+<Value name="4">
+<Value>Madeof</Value>
+</Value>
+</Data>
+</Storage>
+</Class>
+
+
+<Class name="Sample.Jewel">
+<Super>Sample.Accesary</Super>
+<TimeChanged>62161,41191.684571</TimeChanged>
+<TimeCreated>62161,37533</TimeCreated>
+
+<Property name="Material">
+<Type>%String</Type>
+<SqlFieldName>素材</SqlFieldName>
+<Parameter name="POPSPEC" value="##class(Sample.PopulateUtils).Material()"/>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>JewelDefaultData</DefaultData>
+<Data name="JewelDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"Jewel"</Subscript>
+<Value name="1">
+<Value>Material</Value>
+</Value>
+</Data>
+<Property name="%%CLASSNAME">
+</Property>
+<Property name="Madeof">
+</Property>
+<Property name="Material">
+</Property>
+<Property name="Name">
+</Property>
+<Property name="Price">
+</Property>
+</Storage>
+</Class>
+
+
+<Class name="Sample.Watch">
+<Super>Sample.Accesary</Super>
+<TimeChanged>62161,41594.885243</TimeChanged>
+<TimeCreated>62161,37533</TimeCreated>
+
+<Property name="Waterproof">
+<Type>%Boolean</Type>
+<SqlFieldName>防水</SqlFieldName>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DefaultData>WatchDefaultData</DefaultData>
+<Data name="WatchDefaultData">
+<Structure>listnode</Structure>
+<Subscript>"Watch"</Subscript>
+<Value name="1">
+<Value>Waterproof</Value>
+</Value>
+</Data>
+<Property name="%%CLASSNAME">
+</Property>
+<Property name="Madeof">
+</Property>
+<Property name="Name">
+</Property>
+<Property name="Price">
+</Property>
+<Property name="Waterproof">
+</Property>
+</Storage>
+</Class>
+</Export>
