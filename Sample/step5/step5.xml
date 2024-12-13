@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="24" zv="Cache for Windows (x86-32) 2010.2.2 (Build 600U)" ts="2011-03-15 16:18:32">
+<Class name="Sample.Utils">
+<Description>
+SQL機能ガイド　4.2　以降で利用するSQL実行用メソッドを定義したクラス</Description>
+<TimeChanged>62165,58383.476218</TimeChanged>
+<TimeCreated>62161,52500.401781</TimeCreated>
+
+<Method name="PersonSelect">
+<Description>
+埋め込みSQLによるSELECT文（1行のみ）</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&sql(SELECT ID, 名前 into :id, :Name FROM Sample.Person WHERE ID = 10)
+    if SQLCODE<0 {
+	    Write !,"SELECT Error SQLCODE = ",SQLCODE    
+    } 
+    Else { 
+     Write "名前: ",##class(Sample.JNAME).LogicalToDisplay(Name),!
+    }
+]]></Implementation>
+</Method>
+
+<Method name="PersonSelectAll">
+<Description>
+埋め込みSQL：カーソルの利用</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+  &sql(DECLARE PersonCur CURSOR FOR
+  SELECT 名前,誕生日 into :Name, :DOB FROM Sample.Person ORDER BY 名前)
+  
+  &sql(OPEN PersonCur)
+  
+  &sql(FETCH PersonCur)
+  For  {
+	  If SQLCODE Quit
+	  Write "名前: ",##class(Sample.JNAME).LogicalToDisplay(Name),!
+	  Write "誕生日: ",##class(%Date).LogicalToDisplay(DOB),!
+      &sql(FETCH PersonCur)
+  }
+  &sql(CLOSE PersonCur)
+]]></Implementation>
+</Method>
+
+<Method name="PersonResultSet">
+<Description>
+クラスクエリの実行:　先頭1行の取得</Description>
+<ClassMethod>1</ClassMethod>
+<FormalSpec>name:%String</FormalSpec>
+<Implementation><![CDATA[
+   Set byname = ##class(%ResultSet).%New("Sample.Person:ByName")
+   Do byname.Execute(name)
+ 
+   While (byname.Next()) {
+     Write "id = ",byname.GetData(1),!
+     Write "名前 = ",##class(Sample.JNAME).LogicalToDisplay(byname.GetData(2)),!
+   }
+]]></Implementation>
+</Method>
+
+<Method name="PersonDynamicSQL">
+<Description>
+ダイナミックSQLの実行</Description>
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	set statement=##class(%SQL.Statement).%New()
+	set st=statement.%Prepare("SELECT ID, 名前 FROM Sample.Person ORDER BY 名前")
+	set rset=statement.%Execute()
+	while (rset.%Next()) {
+		write !,"名前：",##class(Sample.JNAME).LogicalToDisplay(rset.名前)
+	}
+]]></Implementation>
+</Method>
+
+<Method name="PersonSQLList">
+<ClassMethod>1</ClassMethod>
+<Implementation><![CDATA[
+	&sql(DECLARE ListCur CURSOR FOR
+	SELECT 名前,誕生日,好きな色 into :Name, :DOB, :color FROM Sample.Person ORDER BY 名前)
+	&sql(OPEN ListCur)
+
+	For {
+		&sql(FETCH ListCur)
+
+		if SQLCODE'=0 {quit}
+		
+		Write "名前: ",##class(Sample.JNAME).LogicalToDisplay(Name),!
+		Write "誕生日: ",##class(%Date).LogicalToDisplay(DOB),!
+		Write "好きな色: "
+		for i=1:1:$LL(color) {
+			Write $List(color,i)," "
+	  	}
+	  	Write !
+	}
+	&sql(CLOSE ListCur)
+]]></Implementation>
+</Method>
+</Class>
+</Export>
