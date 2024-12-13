@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="24" zv="Cache for Windows (x86-32) 2010.2.2 (Build 600U)" ts="2011-03-11 14:21:43">
+<Routine name="ArrayPopulate" type="MAC" languagemode="0" timestamp="59531,59585"><![CDATA[
+#include %occStatus
+ 
+populate() {
+	Do ##class(User.NewClass1).%KillExtent()
+	Do ##class(User.NewClass2).%KillExtent()
+	Do ##class(User.NewClass1).Populate(100)
+	Do ##class(User.NewClass2).Populate(10000)
+	For i=1:1:100 {
+		Set cr=##class(User.NewClass1).%OpenId(i)
+		If '$ISOBJECT(cr) {
+			Do $System.Status.DisplayError()
+			Quit
+		}
+		For j=1:1:10 {
+		  Set key=$R(10000)+1
+		  Set sts = cr.Prop4.SetObjectIdAt(j,key)
+		  If $$$ISOK(sts) {
+			  Set sts = cr.%Save()
+              If $$$ISERR(sts) {
+ 	             Do $System.Status.DecomposeStatus(sts)
+              }
+		  }
+		  Else {
+ 	          Do $System.Status.DecomposeStatus(sts)
+		  }
+		}
+	}
+}
+]]></Routine>
+
+
+<Class name="User.NewClass1">
+<SqlTableName>tblNewClass1</SqlTableName>
+<Super>%Persistent,%Populate</Super>
+<TimeChanged>62161,51414.659409</TimeChanged>
+<TimeCreated>59305,54078.586</TimeCreated>
+
+<Property name="Prop1">
+<Type>%String</Type>
+<SqlFieldName>Name</SqlFieldName>
+</Property>
+
+<Property name="Prop2">
+<Type>%Date</Type>
+<SqlFieldName>Dt</SqlFieldName>
+</Property>
+
+<Property name="Prop3">
+<Type>%Integer</Type>
+<SqlFieldName>Number</SqlFieldName>
+</Property>
+
+<Property name="Prop4">
+<Type>NewClass2</Type>
+<Collection>array</Collection>
+<SqlFieldName>tblNewClass2</SqlFieldName>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^User.NewClass1D</DataLocation>
+<DefaultData>NewClass1DefaultData</DefaultData>
+<IdLocation>^User.NewClass1D</IdLocation>
+<IndexLocation>^User.NewClass1I</IndexLocation>
+<StreamLocation>^User.NewClass1S</StreamLocation>
+<Data name="NewClass1DefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Prop1</Value>
+</Value>
+<Value name="3">
+<Value>Prop2</Value>
+</Value>
+<Value name="4">
+<Value>Prop3</Value>
+</Value>
+</Data>
+<Data name="Prop4">
+<Attribute>Prop4</Attribute>
+<Structure>subnode</Structure>
+<Subscript>"Prop4"</Subscript>
+</Data>
+<Property name="%%CLASSNAME">
+</Property>
+<Property name="Prop1">
+</Property>
+<Property name="Prop2">
+</Property>
+<Property name="Prop3">
+</Property>
+</Storage>
+</Class>
+
+
+<Class name="User.NewClass2">
+<SqlTableName>tblNewClass2</SqlTableName>
+<Super>%Persistent,%Populate</Super>
+<TimeChanged>62161,51418.257957</TimeChanged>
+<TimeCreated>59305,54078.606</TimeCreated>
+
+<Property name="Prop1">
+<Type>%String</Type>
+<SqlFieldName>Name</SqlFieldName>
+</Property>
+
+<Property name="Prop2">
+<Type>%Date</Type>
+<SqlFieldName>Dt</SqlFieldName>
+</Property>
+
+<Property name="Prop3">
+<Type>%Integer</Type>
+<SqlFieldName>Number</SqlFieldName>
+</Property>
+
+<Storage name="Default">
+<Type>%Library.CacheStorage</Type>
+<DataLocation>^User.NewClass2D</DataLocation>
+<DefaultData>NewClass2DefaultData</DefaultData>
+<IdLocation>^User.NewClass2D</IdLocation>
+<IndexLocation>^User.NewClass2I</IndexLocation>
+<StreamLocation>^User.NewClass2S</StreamLocation>
+<Data name="NewClass2DefaultData">
+<Structure>listnode</Structure>
+<Subscript/>
+<Value name="1">
+<Value>%%CLASSNAME</Value>
+</Value>
+<Value name="2">
+<Value>Prop1</Value>
+</Value>
+<Value name="3">
+<Value>Prop2</Value>
+</Value>
+<Value name="4">
+<Value>Prop3</Value>
+</Value>
+</Data>
+<Property name="%%CLASSNAME">
+</Property>
+<Property name="Prop1">
+</Property>
+<Property name="Prop2">
+</Property>
+<Property name="Prop3">
+</Property>
+</Storage>
+</Class>
+</Export>
