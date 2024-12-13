@@ -19,7 +19,7 @@ git clone https://github.com/intersystems-jp/IRISSQLGuide.git
 
 ## ソースファイル
 
-PDFではSampleディレクトリ配下にあるxmlファイルでクラス定義のロードをおこなっていますが、現在はUDL形式（拡張子.cls）を使用するほうが主流のため
+PDF内の説明ではSampleディレクトリ配下にあるxmlファイルでクラス定義のロードをおこなっていますが、現在はUDL形式（拡張子.cls）を使用するほうが主流のため
 それらのファイルをsrc以下に配置しています。
 
 
