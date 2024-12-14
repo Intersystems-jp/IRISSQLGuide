@@ -293,7 +293,7 @@ This is a calculated field whose value is derived from <property>DOB</property>.
 <Calculated>1</Calculated>
 <Collection/>
 <Relationship>0</Relationship>
-<SqlComputeCode> Set {年令}=$select({誕生日}="":"",1:$horolog-{誕生日}\365.25)</SqlComputeCode>
+<SqlComputeCode> Set {年令}=$select({誕生日}="":"",1:$zdate($horolog,8)-$zdate({誕生日},8)\10000)</SqlComputeCode>
 <SqlComputed>1</SqlComputed>
 <SqlComputeOnChange>DOB</SqlComputeOnChange>
 <SqlFieldName>年令</SqlFieldName>
