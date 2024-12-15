@@ -1,10 +1,9 @@
-﻿Imports InterSystems.Data.CacheClient
-Imports InterSystems.Data.CacheTypes
+﻿Imports InterSystems.Data.IRISClient
 
 Public Class Form1
-    Private cnCache As CacheConnection
-    Private cmd As CacheCommand
-    Private personAdapter As CacheDataAdapter
+    Private cnIRIS As IRISConnection
+    Private cmd As IRISCommand
+    Private personAdapter As IRISDataAdapter
     Private personDS As DataSet
 
 
@@ -13,7 +12,7 @@ Public Class Form1
         listbox1.Items.Clear()
         Dim key As String = txtKey.Text
 
-        Dim p1 As CacheParameter = New CacheParameter("Name", CacheDbType.NVarChar)
+        Dim p1 As IRISParameter = New IRISParameter("Name", IRISDbType.NVarChar)
         If key <> "" Then
             p1.Value = txtKey.Text
         Else
@@ -22,7 +21,7 @@ Public Class Form1
 
         cmd.Parameters.Add(p1)
 
-        Dim reader As CacheDataReader = cmd.ExecuteReader
+        Dim reader As IRISDataReader = cmd.ExecuteReader
 
         Dim maxcnt As Integer = reader.FieldCount - 1
         Dim moji As String = ""
@@ -51,20 +50,20 @@ Public Class Form1
         End If
 
         cmd.Dispose()
-        cnCache.Close()
-        cnCache.Dispose()
+        cnIRIS.Close()
+        cnIRIS.Dispose()
         Me.Close()
 
     End Sub
 
     Private Sub Form1_Load(ByVal sender As System.Object, ByVal e As System.EventArgs) Handles MyBase.Load
-        Dim cacheString As String = "Server=localhost;Port=1972; LogFile=;Namespace=USER;Password=SYS;USER ID=_system;"
-        cnCache = New CacheConnection(cacheString)
-        cnCache.Open()
+        Dim IRISString As String = "Server=localhost;Port=1972; LogFile=;Namespace=USER;Password=SYS;USER ID=_system;"
+        cnIRIS = New IRISConnection(IRISString)
+        cnIRIS.Open()
 
         Dim query As String
         query = "Select * from Sample.Person where 名前 %STARTSWITH ?"
-        cmd = New CacheCommand(query, cnCache)
+        cmd = New IRISCommand(query, cnIRIS)
 
 
     End Sub
@@ -73,7 +72,7 @@ Public Class Form1
         listbox1.Items.Clear()
         Dim key As String = txtKey.Text
 
-        Dim p1 As CacheParameter = New CacheParameter("Name", CacheDbType.NVarChar)
+        Dim p1 As IRISParameter = New IRISParameter("Name", IRISDbType.NVarChar)
         If key <> "" Then
             p1.Value = txtKey.Text
         Else
@@ -103,10 +102,14 @@ Public Class Form1
 
     Private Sub CreateDataSet()
         ' DataSetオブジェクトの作成
-        personAdapter = New CacheDataAdapter
+        personAdapter = New IRISDataAdapter
         personAdapter.SelectCommand = cmd
         personDS = New DataSet
         personAdapter.Fill(personDS, "Person")
+
+    End Sub
+
+    Private Sub listbox1_SelectedIndexChanged(sender As Object, e As EventArgs) Handles listbox1.SelectedIndexChanged
 
     End Sub
 End Class
